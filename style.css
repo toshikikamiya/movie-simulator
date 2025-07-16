@@ -1,4 +1,21 @@
-:root {
+.animation-button-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.unit-button-group {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.unit-button-group .btn {
+  flex: 1;
+  min-width: 50px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+}:root {
   --primary-color: #007bff;
   --secondary-color: #6c757d;
   --bg-color: #f8f9fa;
@@ -178,15 +195,7 @@ input[type="range"] {
 }
 
 .fps-display {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-family: monospace;
-  font-size: 14px;
+  display: none;
 }
 
 .calculation-container {
