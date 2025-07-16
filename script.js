@@ -404,12 +404,13 @@ class VideoSimulator {
     // 1フレームあたりのデータ量（bit単位）
     const framePixels = width * height;
     const frameBits = framePixels * bits * channels;
+    const frameBytes = frameBits / 8n;
     
     // 総データ量（bit単位）
     const totalFrames = fps * duration;
     const totalBits = frameBits * totalFrames;
 
-    const formatValue = (bits, unit) => {
+    const formatTotalValue = (bits, unit) => {
       let value = bits;
       let formula = '';
       
@@ -454,15 +455,14 @@ class VideoSimulator {
     };
 
     const channelText = this.currentColorMode === 'color' ? '3チャンネル' : '1チャンネル';
-    const frameResult = formatValue(frameBits, this.currentUnit);
-    const totalResult = formatValue(totalBits, this.currentUnit);
+    const totalResult = formatTotalValue(totalBits, this.currentUnit);
     
     document.getElementById('calculation-result').innerHTML = `
       <h3>1フレームあたりのデータ量</h3>
-      <p>${width.toLocaleString()}px × ${height.toLocaleString()}px × ${bits.toLocaleString()}bit × ${channelText}${frameResult.formula} = <span>${frameResult.value} ${frameResult.unit}</span></p>
+      <p>${width.toLocaleString()}px × ${height.toLocaleString()}px × ${bits.toLocaleString()}bit × ${channelText} = <span>${frameBits.toLocaleString()} bit</span></p>
       
       <h3>総データ量</h3>
-      <p>${frameResult.value} ${frameResult.unit} × ${fps.toLocaleString()}fps × ${duration.toLocaleString()}秒 = <span>${totalResult.value} ${totalResult.unit}</span></p>
+      <p>${frameBits.toLocaleString()} bit × ${fps.toLocaleString()}fps × ${duration.toLocaleString()}秒${totalResult.formula} = <span>${totalResult.value} ${totalResult.unit}</span></p>
     `;
 
     // データ爆発警告（DVDの容量4.37GBを超えた場合）
