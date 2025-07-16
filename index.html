@@ -57,7 +57,7 @@
 
           <div class="control-group">
             <label>アニメーション種類:</label>
-            <div class="button-group">
+            <div class="animation-button-grid">
               <button class="btn btn-animation active" data-animation="bouncing">跳ねるボール</button>
               <button class="btn btn-animation" data-animation="spiral">スパイラル</button>
               <button class="btn btn-animation" data-animation="waves">波紋</button>
@@ -78,19 +78,28 @@
           <h2><span class="icon">📺</span>動画プレビュー</h2>
           <div class="canvas-wrapper">
             <canvas id="canvas" width="32" height="32"></canvas>
-            <div class="fps-display">
-              実際のFPS: <span id="actual-fps">0</span>
-            </div>
           </div>
         </div>
 
         <div class="calculation-container card">
           <h2><span class="icon">📊</span>データ量計算</h2>
+          
+          <div class="control-group">
+            <label>表示単位:</label>
+            <div class="unit-button-group">
+              <button class="btn btn-unit" data-unit="bit">bit</button>
+              <button class="btn btn-unit active" data-unit="byte">Byte</button>
+              <button class="btn btn-unit" data-unit="kb">KB</button>
+              <button class="btn btn-unit" data-unit="mb">MB</button>
+              <button class="btn btn-unit" data-unit="gb">GB</button>
+            </div>
+          </div>
+          
           <div id="calculation-result">
             <p>設定を調整して計算結果を確認してみよう！</p>
           </div>
           <div id="data-explosion-alert" class="alert-box">
-            💥 データ爆発警報！非常に大きなデータ量です！ 💥
+            💥 データ爆発警報！DVDの容量を超えました！ 💥
           </div>
         </div>
       </div>
