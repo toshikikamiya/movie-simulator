@@ -16,11 +16,11 @@ class VideoSimulator {
     this.isPlaying = false;
     this.currentAnimation = this.DEFAULT_VALUES.animation;
     this.currentColorMode = this.DEFAULT_VALUES.colorMode;
+    this.currentUnit = 'byte';
     this.animationId = null;
     this.lastFrameTime = 0;
     this.frameCount = 0;
-    this.fpsCounter = 0;
-    this.lastFpsTime = 0;
+    this.animationStartTime = 0;
     
     this.setupEventListeners();
     this.updateCalculation();
@@ -64,6 +64,16 @@ class VideoSimulator {
       });
     });
 
+    // 単位ボタン
+    document.querySelectorAll('.btn-unit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        this.currentUnit = e.target.dataset.unit;
+        document.querySelectorAll('.btn-unit').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        this.updateCalculation();
+      });
+    });
+
     // 制御ボタン
     document.getElementById('play-btn').addEventListener('click', () => this.play());
     document.getElementById('pause-btn').addEventListener('click', () => this.pause());
@@ -81,7 +91,7 @@ class VideoSimulator {
     if (!this.isPlaying) {
       this.isPlaying = true;
       this.lastFrameTime = performance.now();
-      this.lastFpsTime = this.lastFrameTime;
+      this.animationStartTime = this.lastFrameTime;
       this.frameCount = 0;
       this.animate();
     }
@@ -97,6 +107,7 @@ class VideoSimulator {
   resetAnimation() {
     this.pause();
     this.frameCount = 0;
+    this.animationStartTime = 0;
     this.drawFrame();
   }
 
@@ -104,6 +115,7 @@ class VideoSimulator {
     // アニメーションを停止
     this.pause();
     this.frameCount = 0;
+    this.animationStartTime = 0;
 
     // スライダーを初期値に戻す
     const sliders = ['width', 'height', 'fps', 'duration', 'bits'];
@@ -130,6 +142,12 @@ class VideoSimulator {
       btn.classList.toggle('active', btn.dataset.animation === this.DEFAULT_VALUES.animation);
     });
 
+    // 単位を初期値に戻す
+    this.currentUnit = 'byte';
+    document.querySelectorAll('.btn-unit').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.unit === 'byte');
+    });
+
     // 画面を更新
     this.updateCanvasSize();
     this.updateCalculation();
@@ -141,20 +159,20 @@ class VideoSimulator {
 
     const currentTime = performance.now();
     const fps = parseInt(document.getElementById('fps-slider').value);
+    const duration = parseInt(document.getElementById('duration-slider').value);
     const frameInterval = 1000 / fps;
+    
+    // 動画時間をチェック
+    const elapsedTime = (currentTime - this.animationStartTime) / 1000;
+    if (elapsedTime >= duration) {
+      this.pause();
+      return;
+    }
 
     if (currentTime - this.lastFrameTime >= frameInterval) {
       this.drawFrame();
       this.frameCount++;
       this.lastFrameTime = currentTime;
-
-      // FPS計算
-      if (currentTime - this.lastFpsTime >= 1000) {
-        this.fpsCounter = Math.round(1000 / (currentTime - this.lastFpsTime) * (this.frameCount));
-        document.getElementById('actual-fps').textContent = this.fpsCounter;
-        this.lastFpsTime = currentTime;
-        this.frameCount = 0;
-      }
     }
 
     this.animationId = requestAnimationFrame(() => this.animate());
@@ -379,45 +397,75 @@ class VideoSimulator {
     const bits = BigInt(document.getElementById('bits-slider').value);
     const channels = this.currentColorMode === 'color' ? 3n : 1n;
 
-    // 1フレームあたりのデータ量
+    // 1フレームあたりのデータ量（bit単位）
     const framePixels = width * height;
     const frameBits = framePixels * bits * channels;
-    const frameBytes = frameBits / 8n;
-
-    // 総データ量
+    
+    // 総データ量（bit単位）
     const totalFrames = fps * duration;
     const totalBits = frameBits * totalFrames;
-    const totalBytes = totalBits / 8n;
 
-    const formatBytes = (bytes) => {
-      if (bytes === 0n) return '0 Bytes';
-      const k = 1000n;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-      let i = 0;
-      let tempBytes = bytes;
-      while (tempBytes >= k && i < sizes.length - 1) {
-        tempBytes /= k;
-        i++;
+    const formatValue = (bits, unit) => {
+      let value = bits;
+      let formula = '';
+      
+      switch (unit) {
+        case 'bit':
+          formula = '';
+          break;
+        case 'byte':
+          value = bits / 8n;
+          formula = ' ÷ 8';
+          break;
+        case 'kb':
+          value = bits / 8n / 1000n;
+          formula = ' ÷ 8 ÷ 1000';
+          break;
+        case 'mb':
+          value = bits / 8n / 1000n / 1000n;
+          formula = ' ÷ 8 ÷ 1000 ÷ 1000';
+          break;
+        case 'gb':
+          value = bits / 8n / 1000n / 1000n / 1000n;
+          formula = ' ÷ 8 ÷ 1000 ÷ 1000 ÷ 1000';
+          break;
       }
-      const displayValue = Number(bytes) / Math.pow(Number(k), i);
-      return `${displayValue.toFixed(2)} ${sizes[i]}`;
+      
+      const unitNames = {
+        'bit': 'bit',
+        'byte': 'Byte',
+        'kb': 'KB',
+        'mb': 'MB',
+        'gb': 'GB'
+      };
+      
+      if (value === 0n) return { value: '0', unit: unitNames[unit], formula };
+      
+      const displayValue = Number(value);
+      return { 
+        value: displayValue >= 1000 ? displayValue.toLocaleString() : displayValue.toFixed(2),
+        unit: unitNames[unit],
+        formula
+      };
     };
 
     const channelText = this.currentColorMode === 'color' ? '3チャンネル' : '1チャンネル';
+    const frameResult = formatValue(frameBits, this.currentUnit);
+    const totalResult = formatValue(totalBits, this.currentUnit);
     
     document.getElementById('calculation-result').innerHTML = `
       <h3>1フレームあたりのデータ量</h3>
-      <p>${width.toLocaleString()}px × ${height.toLocaleString()}px × ${bits.toLocaleString()}bit × ${channelText}</p>
-      <p>= <span>${formatBytes(frameBytes)}</span></p>
+      <p>${width.toLocaleString()}px × ${height.toLocaleString()}px × ${bits.toLocaleString()}bit × ${channelText}${frameResult.formula} = <span>${frameResult.value} ${frameResult.unit}</span></p>
       
       <h3>総データ量</h3>
-      <p>${formatBytes(frameBytes)} × ${fps.toLocaleString()}fps × ${duration.toLocaleString()}秒</p>
-      <p>= <span>${formatBytes(totalBytes)}</span></p>
+      <p>${frameResult.value} ${frameResult.unit} × ${fps.toLocaleString()}fps × ${duration.toLocaleString()}秒 = <span>${totalResult.value} ${totalResult.unit}</span></p>
     `;
 
-    // データ爆発警告
+    // データ爆発警告（DVDの容量4.7GBを超えた場合）
+    const totalBytes = totalBits / 8n;
+    const dvdCapacityBytes = 4_700_000_000n; // DVD容量約4.7GB
     const alertBox = document.getElementById('data-explosion-alert');
-    alertBox.style.display = totalBytes > 100_000_000n ? 'block' : 'none';
+    alertBox.style.display = totalBytes > dvdCapacityBytes ? 'block' : 'none';
   }
 }
 
