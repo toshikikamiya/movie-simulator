@@ -19,36 +19,36 @@
           <h2><span class="icon">⚙️</span>動画設定</h2>
 
           <div class="control-group">
-            <label for="width-slider">横の画素数: <span id="width-value">320</span> px</label>
-            <input type="range" id="width-slider" min="160" max="1920" value="320" step="80">
+            <label for="width-slider">横の画素数: <span id="width-value">32</span> px</label>
+            <input type="range" id="width-slider" min="32" max="7680" value="32" step="32">
           </div>
 
           <div class="control-group">
-            <label for="height-slider">縦の画素数: <span id="height-value">240</span> px</label>
-            <input type="range" id="height-slider" min="120" max="1080" value="240" step="60">
+            <label for="height-slider">縦の画素数: <span id="height-value">32</span> px</label>
+            <input type="range" id="height-slider" min="32" max="4320" value="32" step="32">
           </div>
 
           <div class="control-group">
-            <label for="bits-slider">階調(グラデーション): <span id="bits-value">8</span> bit</label>
-            <input type="range" id="bits-slider" min="1" max="8" value="8" step="1">
+            <label for="bits-slider">階調(グラデーション): <span id="bits-value">1</span> bit</label>
+            <input type="range" id="bits-slider" min="1" max="24" value="1" step="1">
           </div>
 
           <div class="control-group">
-            <label>カラーモード: <span id="channel-count">3チャンネル</span></label>
+            <label>カラーモード: <span id="channel-count">1チャンネル</span></label>
             <div class="button-group">
-              <button class="btn btn-color" data-mode="mono">モノクロ</button>
-              <button class="btn btn-color active" data-mode="color">フルカラー</button>
+              <button class="btn btn-color active" data-mode="mono">モノクロ</button>
+              <button class="btn btn-color" data-mode="color">フルカラー</button>
             </div>
           </div>
 
           <div class="control-group">
-            <label for="fps-slider">フレームレート: <span id="fps-value">5</span> fps</label>
-            <input type="range" id="fps-slider" min="1" max="60" value="5" step="1">
+            <label for="fps-slider">フレームレート: <span id="fps-value">1</span> fps</label>
+            <input type="range" id="fps-slider" min="1" max="120" value="1" step="1">
           </div>
 
           <div class="control-group">
             <label for="duration-slider">動画時間: <span id="duration-value">5</span> 秒</label>
-            <input type="range" id="duration-slider" min="1" max="30" value="5" step="1">
+            <input type="range" id="duration-slider" min="5" max="60" value="5" step="5">
           </div>
         </div>
 
@@ -58,9 +58,10 @@
           <div class="control-group">
             <label>アニメーション種類:</label>
             <div class="button-group">
-              <button class="btn btn-animation active" data-animation="circle">円の移動</button>
-              <button class="btn btn-animation" data-animation="color">色の変化</button>
-              <button class="btn btn-animation" data-animation="multiple">複数オブジェクト</button>
+              <button class="btn btn-animation active" data-animation="bouncing">跳ねるボール</button>
+              <button class="btn btn-animation" data-animation="spiral">スパイラル</button>
+              <button class="btn btn-animation" data-animation="waves">波紋</button>
+              <button class="btn btn-animation" data-animation="particles">パーティクル</button>
             </div>
           </div>
 
@@ -76,7 +77,7 @@
         <div class="preview-container card">
           <h2><span class="icon">📺</span>動画プレビュー</h2>
           <div class="canvas-wrapper">
-            <canvas id="canvas" width="320" height="240"></canvas>
+            <canvas id="canvas" width="32" height="32"></canvas>
             <div class="fps-display">
               実際のFPS: <span id="actual-fps">0</span>
             </div>
@@ -87,10 +88,6 @@
           <h2><span class="icon">📊</span>データ量計算</h2>
           <div id="calculation-result">
             <p>設定を調整して計算結果を確認してみよう！</p>
-          </div>
-          <div class="frame-info">
-            <h3>フレーム情報</h3>
-            <div id="frame-info-content"></div>
           </div>
           <div id="data-explosion-alert" class="alert-box">
             💥 データ爆発警報！非常に大きなデータ量です！ 💥
