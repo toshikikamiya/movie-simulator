@@ -194,18 +194,22 @@ class VideoSimulator {
     const bits = parseInt(document.getElementById('bits-slider').value);
     const levels = Math.pow(2, bits);
 
+    // 実時間ベースでアニメーション計算
+    const currentTime = performance.now();
+    const elapsedSeconds = this.animationStartTime > 0 ? (currentTime - this.animationStartTime) / 1000 : 0;
+
     switch (this.currentAnimation) {
       case 'bouncing':
-        this.drawBouncingAnimation(width, height, levels);
+        this.drawBouncingAnimation(width, height, levels, elapsedSeconds);
         break;
       case 'spiral':
-        this.drawSpiralAnimation(width, height, levels);
+        this.drawSpiralAnimation(width, height, levels, elapsedSeconds);
         break;
       case 'waves':
-        this.drawWavesAnimation(width, height, levels);
+        this.drawWavesAnimation(width, height, levels, elapsedSeconds);
         break;
       case 'particles':
-        this.drawParticlesAnimation(width, height, levels);
+        this.drawParticlesAnimation(width, height, levels, elapsedSeconds);
         break;
     }
   }
@@ -225,8 +229,8 @@ class VideoSimulator {
     }
   }
 
-  drawBouncingAnimation(width, height, levels) {
-    const time = this.frameCount * 0.1;
+  drawBouncingAnimation(width, height, levels, elapsedSeconds) {
+    const time = elapsedSeconds;
     
     // ボールの位置計算（物理的な跳ね返り）
     const gravity = 0.3;
@@ -267,8 +271,8 @@ class VideoSimulator {
     this.ctx.globalAlpha = 1;
   }
 
-  drawSpiralAnimation(width, height, levels) {
-    const time = this.frameCount * 0.05;
+  drawSpiralAnimation(width, height, levels, elapsedSeconds) {
+    const time = elapsedSeconds;
     const centerX = width / 2;
     const centerY = height / 2;
     const maxRadius = Math.min(width, height) / 3;
@@ -301,8 +305,8 @@ class VideoSimulator {
     }
   }
 
-  drawWavesAnimation(width, height, levels) {
-    const time = this.frameCount * 0.08;
+  drawWavesAnimation(width, height, levels, elapsedSeconds) {
+    const time = elapsedSeconds;
     const waveHeight = height / 4;
     const waveFreq = 4;
     
@@ -341,8 +345,8 @@ class VideoSimulator {
     }
   }
 
-  drawParticlesAnimation(width, height, levels) {
-    const time = this.frameCount * 0.06;
+  drawParticlesAnimation(width, height, levels, elapsedSeconds) {
+    const time = elapsedSeconds;
     const particleCount = 15;
     
     for (let i = 0; i < particleCount; i++) {
@@ -418,16 +422,16 @@ class VideoSimulator {
           formula = ' ÷ 8';
           break;
         case 'kb':
-          value = bits / 8n / 1000n;
-          formula = ' ÷ 8 ÷ 1000';
+          value = bits / 8n / 1024n;
+          formula = ' ÷ 8 ÷ 1024';
           break;
         case 'mb':
-          value = bits / 8n / 1000n / 1000n;
-          formula = ' ÷ 8 ÷ 1000 ÷ 1000';
+          value = bits / 8n / 1024n / 1024n;
+          formula = ' ÷ 8 ÷ 1024 ÷ 1024';
           break;
         case 'gb':
-          value = bits / 8n / 1000n / 1000n / 1000n;
-          formula = ' ÷ 8 ÷ 1000 ÷ 1000 ÷ 1000';
+          value = bits / 8n / 1024n / 1024n / 1024n;
+          formula = ' ÷ 8 ÷ 1024 ÷ 1024 ÷ 1024';
           break;
       }
       
@@ -461,9 +465,9 @@ class VideoSimulator {
       <p>${frameResult.value} ${frameResult.unit} × ${fps.toLocaleString()}fps × ${duration.toLocaleString()}秒 = <span>${totalResult.value} ${totalResult.unit}</span></p>
     `;
 
-    // データ爆発警告（DVDの容量4.7GBを超えた場合）
+    // データ爆発警告（DVDの容量4.37GBを超えた場合）
     const totalBytes = totalBits / 8n;
-    const dvdCapacityBytes = 4_700_000_000n; // DVD容量約4.7GB
+    const dvdCapacityBytes = BigInt(Math.floor(4.37 * 1024 * 1024 * 1024)); // DVD容量約4.37GB（1024ベース）
     const alertBox = document.getElementById('data-explosion-alert');
     alertBox.style.display = totalBytes > dvdCapacityBytes ? 'block' : 'none';
   }
